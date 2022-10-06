@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/main.b234a844.css","mappings":"AAAA,iBAGI,YAAa,CACb,WACJ,CAEA,KACI,qBAAuB,CACvB,QACJ","sources":["App/index.css"],"sourcesContent":["html,\r\nbody,\r\ncanvas {\r\n    height: 100vh;\r\n    width: 100vw;\r\n}\r\n\r\nbody {\r\n    background-color: black;\r\n    margin: 0; \r\n}"],"names":[],"sourceRoot":""}
