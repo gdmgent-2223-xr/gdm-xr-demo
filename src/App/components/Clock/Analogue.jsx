@@ -63,7 +63,13 @@ const ClockAnalogue = (props) => {
               );
             })}
         </group>
-        <group name="Numbers"></group>
+        <group name="Hours">
+          {Array(CLOCK.HH)
+            .fill(null)
+            .map((value, index) => {
+              return <Text>{index}</Text>;
+            })}
+        </group>
         <group name="Brand" position={[0, -CLOCK.SIZE / 3, SAFE_OFFSET]}>
           <Text color={0x333333} fontSize={CLOCK.SIZE / 18}>
             Artevelde University of Applied Sciences
