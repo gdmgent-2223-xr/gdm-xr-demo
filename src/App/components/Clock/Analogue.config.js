@@ -6,11 +6,14 @@ export const CLOCK = Object.freeze({
   SS: 60,
   HAND: {
     HH: {
-      LENGTH: 0.6 * CLOCK_SIZE,
-      WIDTH: 0.02 * CLOCK_SIZE,
+      COLOR: 0xffffff,
+      LENGTH: 0.5 * CLOCK_SIZE,
+      WIDTH: 0.06 * CLOCK_SIZE,
     },
     MM: {
+      COLOR: 0xffffff,
       LENGTH: 0.7 * CLOCK_SIZE,
+      WIDTH: 0.04 * CLOCK_SIZE,
     },
     SS: {
       COLOR: 0xffcc66,

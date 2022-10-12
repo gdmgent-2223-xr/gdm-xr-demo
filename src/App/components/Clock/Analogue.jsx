@@ -1,6 +1,9 @@
 import { Text } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { DoubleSide, MathUtils } from "three";
+
+import MathCircle from "App/utils/MathCircle";
 
 import { CLOCK } from "./Analogue.config";
 
@@ -17,13 +20,33 @@ function isHour(mark) {
 }
 
 const ClockAnalogue = (props) => {
-  const handHoursRef = useRef();
+  const handHourRef = useRef();
+  const handMinuteRef = useRef();
+  const handSecondRef = useRef();
+
+  useFrame(() => {
+    const d = new Date();
+    if (handHourRef.current) {
+      const angleHandHour =
+        angleStart -
+        (360 / CLOCK.HH) * (d.getHours() + d.getMinutes() / CLOCK.MM);
+      handHourRef.current.rotation.z = MathUtils.degToRad(angleHandHour);
+    }
+    if (handMinuteRef.current) {
+      const angleHandMinute = angleStart - (360 / CLOCK.MM) * d.getMinutes();
+      handMinuteRef.current.rotation.z = MathUtils.degToRad(angleHandMinute);
+    }
+    if (handSecondRef.current) {
+      const angleHandSecond = angleStart - (360 / CLOCK.SS) * d.getSeconds();
+      handSecondRef.current.rotation.z = MathUtils.degToRad(angleHandSecond);
+    }
+  });
 
   return (
     <group name="Analogue Clock" {...props}>
       <group name="Face">
         <group name="Plate">
-          <mesh receiveShadows={true}>
+          <mesh receiveShadow={true}>
             <circleGeometry args={[CLOCK.SIZE, CLOCK.MM]} />
             <meshStandardMaterial
               color={0x999999}
@@ -40,8 +63,15 @@ const ClockAnalogue = (props) => {
               const angle = -(360 / CLOCK.MM) * index;
 
               return (
-                <group name="Mark" rotation={[0, 0, MathUtils.degToRad(angle)]}>
-                  <mesh position={[CLOCK.SIZE - CLOCK.MARK.OFFSET * 1.5, 0, 0]}>
+                <group
+                  name="Mark"
+                  key={index}
+                  rotation={[0, 0, MathUtils.degToRad(angle)]}
+                >
+                  <mesh
+                    castShadow={true}
+                    position={[CLOCK.SIZE - CLOCK.MARK.OFFSET * 1.5, 0, 0]}
+                  >
                     <boxGeometry
                       args={[
                         CLOCK.MARK.MM.LENGTH,
@@ -67,7 +97,21 @@ const ClockAnalogue = (props) => {
           {Array(CLOCK.HH)
             .fill(null)
             .map((value, index) => {
-              return <Text>{index}</Text>;
+              const radius = CLOCK.MARK.HH.LENGTH * 7.75;
+              const c = new MathCircle(radius);
+              const angle = 90 - (360 / CLOCK.HH) * index;
+              const { x, y } = c.getCoordinates(angle);
+
+              return (
+                <Text
+                  color={CLOCK.MARK.MM.COLOR}
+                  fontSize={CLOCK.SIZE / 10}
+                  key={index}
+                  position={[x, y, SAFE_OFFSET]}
+                >
+                  {index ? index : 12}
+                </Text>
+              );
             })}
         </group>
         <group name="Brand" position={[0, -CLOCK.SIZE / 3, SAFE_OFFSET]}>
@@ -77,11 +121,86 @@ const ClockAnalogue = (props) => {
         </group>
       </group>
 
-      <group rotation={[0, 0, MathUtils.degToRad(angleStart)]}>
-        <group position={[0, 0, CLOCK.HAND.THICKNESS / 2]}>
-          <group position={[0, 0, CLOCK.HAND.THICKNESS / 2]} ref={handHoursRef}>
-            <mesh></mesh>
-          </group>
+      <group name="Hands">
+        <group
+          name="Shaft"
+          position={[0, 0, CLOCK.HAND.THICKNESS * 2.5 + SAFE_OFFSET]}
+        >
+          <mesh
+            castShadow={true}
+            receiveShadow={true}
+            rotation={[MathUtils.degToRad(angleStart), 0, 0]}
+          >
+            <cylinderGeometry
+              args={[
+                CLOCK.HAND.THICKNESS,
+                CLOCK.HAND.THICKNESS * 3,
+                CLOCK.HAND.THICKNESS * 5,
+                CLOCK.HH * 2,
+              ]}
+            />
+            <meshStandardMaterial />
+          </mesh>
+        </group>
+        <group
+          name="Hour Hand"
+          position={[0, 0, CLOCK.HAND.THICKNESS]}
+          ref={handHourRef}
+        >
+          <mesh
+            castShadow={true}
+            position={[CLOCK.HAND.HH.LENGTH / 2, 0, 0]}
+            receiveShadow={true}
+          >
+            <boxGeometry
+              args={[
+                CLOCK.HAND.HH.LENGTH,
+                CLOCK.HAND.HH.WIDTH,
+                CLOCK.HAND.THICKNESS,
+              ]}
+            />
+            <meshStandardMaterial color={CLOCK.HAND.HH.COLOR} />
+          </mesh>
+        </group>
+        <group
+          name="Minute Hand"
+          position={[0, 0, CLOCK.HAND.THICKNESS * 2.5]}
+          ref={handMinuteRef}
+        >
+          <mesh
+            castShadow={true}
+            position={[CLOCK.HAND.MM.LENGTH / 2, 0, 0]}
+            receiveShadow={true}
+          >
+            <boxGeometry
+              args={[
+                CLOCK.HAND.MM.LENGTH,
+                CLOCK.HAND.MM.WIDTH,
+                CLOCK.HAND.THICKNESS,
+              ]}
+            />
+            <meshStandardMaterial color={CLOCK.HAND.MM.COLOR} />
+          </mesh>
+        </group>
+        <group
+          name="Second Hand"
+          position={[0, 0, CLOCK.HAND.THICKNESS * 4]}
+          ref={handSecondRef}
+        >
+          <mesh
+            castShadow={true}
+            position={[CLOCK.HAND.SS.LENGTH / 2, 0, 0]}
+            receiveShadow={true}
+          >
+            <boxGeometry
+              args={[
+                CLOCK.HAND.SS.LENGTH,
+                CLOCK.HAND.SS.WIDTH,
+                CLOCK.HAND.THICKNESS,
+              ]}
+            />
+            <meshStandardMaterial color={CLOCK.HAND.SS.COLOR} />
+          </mesh>
         </group>
       </group>
     </group>
